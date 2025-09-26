@@ -14,6 +14,8 @@
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
     "dev:server": "turbo -F server dev",
+    "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache --ignore-path .gitignore --log-level silent",
+    "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache --ignore-path .gitignore --log-level silent",
     "db:push": "turbo -F server db:push",
     "db:studio": "turbo -F server db:studio",
     "db:generate": "turbo -F server db:generate",
@@ -26,7 +28,7 @@
     "lint-staged": "^16.1.2"
   },
   "lint-staged": {
-    "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}": ""
+    "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}": "format:write"
   },
   "packageManager": "pnpm@10.17.0"
 }
