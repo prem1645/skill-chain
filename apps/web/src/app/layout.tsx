@@ -1,41 +1,49 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "../index.css";
-import Providers from "@/components/providers";
-import Header from "@/components/header";
+import type { Metadata, Viewport } from 'next'
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
-});
+import Providers from '@/components/providers/providers'
+import { Satoshi } from '@/lib/fonts'
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
-});
+import './globals.css'
 
 export const metadata: Metadata = {
-	title: "ray",
-	description: "ray",
-};
+  title: 'ray',
+  description: 'ray',
+  icons: {
+    icon: [
+      {
+        media: '(prefers-color-scheme: light)',
+        url: '/favicon/favicon-light.png',
+        type: 'image/png',
+      },
+      {
+        media: '(prefers-color-scheme: dark)',
+        url: '/favicon/favicon-dark.png',
+        type: 'image/png',
+      },
+    ],
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' },
+  ],
+}
 
 export default function RootLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode
 }>) {
-	return (
-		<html lang="en" suppressHydrationWarning>
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-			>
-				<Providers>
-					<div className="grid grid-rows-[auto_1fr] h-svh">
-						<Header />
-						{children}
-					</div>
-				</Providers>
-			</body>
-		</html>
-	);
+  return (
+    <html lang='en' suppressHydrationWarning>
+      <body
+        className={`${Satoshi.variable} font-medium tracking-[.1px] antialiased`}>
+        <Providers>
+          <div className='grid grid-rows-[auto_1fr] h-svh'>{children}</div>
+        </Providers>
+      </body>
+    </html>
+  )
 }
