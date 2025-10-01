@@ -6,7 +6,7 @@ import * as schema from '../db/schema'
 import { serverEnv } from './env'
 
 export const auth = betterAuth<BetterAuthOptions>({
-  appName: 'Ray',
+  appName: 'Skill Chain',
   telemetry: {
     enabled: false,
   },
@@ -19,7 +19,7 @@ export const auth = betterAuth<BetterAuthOptions>({
     enabled: true,
   },
   advanced: {
-    cookiePrefix: 'ray',
+    cookiePrefix: 'skill-chain',
     defaultCookieAttributes: {
       sameSite: 'none',
       secure: true,

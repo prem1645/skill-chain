@@ -34,10 +34,12 @@
       "persistent": true
     },
     "format:write": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "format:check": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     }
   }
 }

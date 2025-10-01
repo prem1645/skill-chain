@@ -6,22 +6,8 @@ import { Satoshi } from '@/lib/fonts'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'ray',
-  description: 'ray',
-  icons: {
-    icon: [
-      {
-        media: '(prefers-color-scheme: light)',
-        url: '/favicon/favicon-light.png',
-        type: 'image/png',
-      },
-      {
-        media: '(prefers-color-scheme: dark)',
-        url: '/favicon/favicon-dark.png',
-        type: 'image/png',
-      },
-    ],
-  },
+  title: 'Skill Chain',
+  description: 'Skill Chain',
 }
 
 export const viewport: Viewport = {

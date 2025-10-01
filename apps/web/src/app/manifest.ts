@@ -2,10 +2,10 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'ray',
-    short_name: 'ray',
-    description: 'my pwa app',
-    start_url: '/new',
+    name: 'skill-chain',
+    short_name: 'skill-chain',
+    description: 'Skill Chain',
+    start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#000000',

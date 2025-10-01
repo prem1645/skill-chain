@@ -35,6 +35,15 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
   plugins: [
     new OpenAPIReferencePlugin({
       schemaConverters: [new ZodToJsonSchemaConverter()],
+      docsPath: '/reference',
+      docsTitle: 'Skill Chain API documentation',
+      specGenerateOptions: {
+        info: {
+          title: 'Skill Chain API reference',
+          version: '1.0.0',
+          description: 'Skill Chain API for managing resources',
+        },
+      },
     }),
   ],
   interceptors: [
@@ -52,11 +61,11 @@ export const rpcHandler = new RPCHandler(appRouter, {
   ],
 })
 
-app.use('/*', async (c, next) => {
+app.use('api/v1/*', async (c, next) => {
   const context = await createContext({ context: c })
 
   const rpcResult = await rpcHandler.handle(c.req.raw, {
-    prefix: '/rpc',
+    prefix: '/api/v1/rpc',
     context: context,
   })
 

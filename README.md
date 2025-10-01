@@ -1,4 +1,4 @@
-# ray
+# Skill Chain
 
 ## Getting Started
 
