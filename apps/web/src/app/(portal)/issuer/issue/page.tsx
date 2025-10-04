@@ -26,7 +26,7 @@ const CertificateIssuancePage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus(null)
 
@@ -44,17 +44,14 @@ const CertificateIssuancePage = () => {
     setIsMinting(true)
 
     try {
-      // Simulate network delay for 'minting'
-      setTimeout(() => {
-        const newCert = mintCertificate(formData)
-        setStatus({
-          message: `Certificate successfully minted! Hash: ${newCert.transactionHash.slice(0, 10)}...`,
-          isError: false,
-        })
-        setIsMinting(false)
-        // Optional: Redirect back to dashboard after a delay
-        setTimeout(() => router.push('/issuer'), 3000)
-      }, 1500)
+      const newCert = await mintCertificate(formData)
+      setStatus({
+        message: `Certificate successfully minted! Hash: ${newCert.transactionHash.slice(0, 10)}...`,
+        isError: false,
+      })
+      setIsMinting(false)
+      // Optional: Redirect back to dashboard after a delay
+      setTimeout(() => router.push('/issuer'), 3000)
     } catch (error) {
       console.error(error)
       setIsMinting(false)
@@ -66,63 +63,112 @@ const CertificateIssuancePage = () => {
   }
 
   return (
-    <div className='p-8 max-w-2xl mx-auto'>
-      <h1 className='text-3xl font-bold mb-6'>Certificate Issuance Form 📝</h1>
+    <div className='max-w-4xl mx-auto space-y-8'>
+      {/* Header */}
+      <div className='bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-8 text-white'>
+        <h1 className='text-4xl font-bold mb-2'>Certificate Issuance Form</h1>
+        <p className='text-green-100 text-lg'>
+          Create and mint blockchain-backed skill certificates for learners
+        </p>
+      </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className='bg-white p-6 rounded-lg shadow-xl'>
-        <FormInput
-          label='Learner Full Name'
-          name='learnerName'
-          value={formData.learnerName}
-          onChange={handleChange}
-          required
-          error={errors.learnerName ?? null}
-        />
-        <FormInput
-          label='Course Name'
-          name='course'
-          value={formData.course}
-          onChange={handleChange}
-          required
-          error={errors.course ?? null}
-        />
-        <FormInput
-          label='Roll Number / Learner ID'
-          name='rollNo'
-          value={formData.rollNo}
-          onChange={handleChange}
-          required
-          error={errors.rollNo ?? null}
-        />
-        <FormInput
-          label='Completion Date'
-          name='completionDate'
-          type='date'
-          value={formData.completionDate}
-          onChange={handleChange}
-          required
-          error={errors.completionDate ?? null}
-        />
-
-        <button
-          type='submit'
-          disabled={isMinting}
-          className={`w-full py-3 mt-6 text-white font-semibold rounded-lg transition duration-200 
-            ${isMinting ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}>
-          {isMinting
-            ? 'Generating & Minting on Blockchain...'
-            : 'Generate & Mint Certificate'}
-        </button>
-
-        {status && (
-          <div
-            className={`p-4 mt-4 rounded-lg text-sm ${status.isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-            {status.message}
+      {/* Form */}
+      <div className='bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden'>
+        <div className='p-6 border-b border-gray-100'>
+          <h2 className='text-2xl font-semibold text-gray-900'>Certificate Details</h2>
+          <p className='text-gray-600 mt-1'>Fill in the learner and course information below</p>
+        </div>
+        
+        <form onSubmit={handleSubmit} className='p-6 space-y-6'>
+          <div className='grid md:grid-cols-2 gap-6'>
+            <FormInput
+              label='Learner Full Name'
+              name='learnerName'
+              value={formData.learnerName}
+              onChange={handleChange}
+              required
+              error={errors.learnerName ?? null}
+              placeholder='Enter learner\'s full name'
+            />
+            <FormInput
+              label='Roll Number / Learner ID'
+              name='rollNo'
+              value={formData.rollNo}
+              onChange={handleChange}
+              required
+              error={errors.rollNo ?? null}
+              placeholder='e.g., LID007'
+            />
           </div>
-        )}
-      </form>
+          
+          <FormInput
+            label='Course Name'
+            name='course'
+            value={formData.course}
+            onChange={handleChange}
+            required
+            error={errors.course ?? null}
+            placeholder='e.g., Digital Marketing Fundamentals'
+          />
+          
+          <FormInput
+            label='Course Completion Date'
+            name='completionDate'
+            type='date'
+            value={formData.completionDate}
+            onChange={handleChange}
+            required
+            error={errors.completionDate ?? null}
+          />
+
+          <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+            <div className='flex items-start gap-3'>
+              <div className='text-blue-600 text-xl'>ℹ️</div>
+              <div>
+                <h3 className='font-medium text-blue-900 mb-1'>Important Notice</h3>
+                <p className='text-blue-700 text-sm'>
+                  Once issued, this certificate will be permanently recorded on the blockchain and cannot be modified. 
+                  Please verify all information before submitting.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type='submit'
+            disabled={isMinting}
+            className={`w-full py-4 text-white font-semibold rounded-xl transition duration-200 flex items-center justify-center gap-3 ${
+              isMinting 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl'
+            }`}>
+            {isMinting ? (
+              <>
+                <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white'></div>
+                Generating & Minting Certificate...
+              </>
+            ) : (
+              <>
+                <span className='text-xl'>🚀</span>
+                Generate & Mint Certificate
+              </>
+            )}
+          </button>
+
+          {status && (
+            <div className={`p-4 rounded-lg border ${
+              status.isError 
+                ? 'bg-red-50 border-red-200 text-red-700' 
+                : 'bg-green-50 border-green-200 text-green-700'
+            }`}>
+              <div className='flex items-center gap-2'>
+                <span className='text-xl'>{status.isError ? '❌' : '✅'}</span>
+                <span className='font-medium'>{status.message}</span>
+              </div>
+            </div>
+          )}
+        </form>
+      </div>
     </div>
   )
 }

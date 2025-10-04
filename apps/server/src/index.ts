@@ -61,6 +61,7 @@ export const rpcHandler = new RPCHandler(appRouter, {
   ],
 })
 
+// RPC API routes
 app.use('api/v1/*', async (c, next) => {
   const context = await createContext({ context: c })
 
@@ -75,6 +76,22 @@ app.use('api/v1/*', async (c, next) => {
 
   const apiResult = await apiHandler.handle(c.req.raw, {
     prefix: '/api/v1',
+    context: context,
+  })
+
+  if (apiResult.matched) {
+    return c.newResponse(apiResult.response.body, apiResult.response)
+  }
+
+  await next()
+})
+
+// REST API routes for frontend compatibility
+app.use('api/*', async (c, next) => {
+  const context = await createContext({ context: c })
+
+  const apiResult = await apiHandler.handle(c.req.raw, {
+    prefix: '/api',
     context: context,
   })
 

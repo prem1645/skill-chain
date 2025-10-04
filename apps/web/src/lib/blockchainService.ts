@@ -1,4 +1,5 @@
 // web/src/lib/blockchainService.ts
+import { webEnv } from './env'
 
 export interface Certificate {
   id: string
@@ -8,83 +9,88 @@ export interface Certificate {
   completionDate: string
   transactionHash: string
   timestamp: Date
+  ipfsCid?: string
 }
 
-// Simple in-memory store for issued certificates
-let certificates: Certificate[] = []
+const API_BASE = webEnv.NEXT_PUBLIC_SERVER_URL
 
 /**
- * Mints a new certificate on the mock blockchain.
+ * Mints a new certificate by calling the backend API.
  */
-export const mintCertificate = (
-  details: Omit<Certificate, 'id' | 'transactionHash' | 'timestamp'>
-): Certificate => {
-  const newId = `CERT-${Date.now()}`
-  const mockHash = `0x${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 10)}`
+export const mintCertificate = async (
+  details: Omit<Certificate, 'id' | 'transactionHash' | 'timestamp' | 'ipfsCid'>
+): Promise<Certificate> => {
+  const response = await fetch(`${API_BASE}/api/certificate/issue`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(details),
+  })
 
-  const newCertificate: Certificate = {
-    ...details,
-    id: newId,
-    transactionHash: mockHash,
-    timestamp: new Date(),
+  if (!response.ok) {
+    throw new Error(`Failed to mint certificate: ${response.statusText}`)
   }
 
-  certificates.push(newCertificate)
-  return newCertificate
+  const data = await response.json()
+  return data.certificate
 }
 
 /**
- * Retrieves all issued certificates.
+ * Retrieves all issued certificates from the backend.
  */
-export const getIssuedCertificates = (): Certificate[] => {
-  // Return a copy to prevent external modification
-  return [...certificates].sort(
-    (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
-  )
+export const getIssuedCertificates = async (): Promise<Certificate[]> => {
+  const response = await fetch(`${API_BASE}/api/certificate`)
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch certificates: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  return data.certificates || []
 }
 
 /**
- * Retrieves a certificate by its ID or Hash (for verification).
+ * Retrieves a certificate by its ID for verification.
  */
-export const getCertificateByHashOrId = (
-  identifier: string
-): Certificate | undefined => {
-  return certificates.find(
-    (c) => c.id === identifier || c.transactionHash === identifier
-  )
-}
+export const getCertificateById = async (
+  certId: string
+): Promise<Certificate | null> => {
+  const response = await fetch(`${API_BASE}/api/certificate/verify/${certId}`)
 
-// Add initial mock data
-certificates.push({
-  id: 'CERT-1001',
-  learnerName: 'Ravi Kumar',
-  course: 'Full Stack Development',
-  rollNo: 'RSD2023001',
-  completionDate: '2023-09-15',
-  transactionHash: '0xabc123def4567890',
-  timestamp: new Date(Date.now() - 86400000), // Yesterday
-})
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null
+    }
+    throw new Error(`Failed to fetch certificate: ${response.statusText}`)
+  }
 
-export const mockLearner = {
-  id: 'LID007',
-  name: 'Ravi Kumar',
-  certificates: [
-    {
-      id: 'CERT-1001',
-      course: 'Full Stack Development',
-      issuer: 'Training Partner A',
-    },
-    { id: 'CERT-2005', course: 'Data Science Fundamentals', issuer: 'NCVET' },
-  ],
-  // Note: The actual certificate data is pulled from the main `certificates` array
+  const data = await response.json()
+  return data.certificate
 }
 
 /**
- * Mock login function
+ * Verifies a certificate by comparing on-chain and recalculated hash.
+ * Returns the certificate data if valid, null if invalid.
+ */
+export const verifyCertificate = async (certId: string): Promise<Certificate | null> => {
+  const response = await fetch(`${API_BASE}/api/certificate/verify/${certId}`)
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null
+    }
+    throw new Error(`Verification failed: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  return data.certificate
+}
+
+/**
+ * Mock login function for learner portal (to be replaced with real auth)
  */
 export const mockLearnerLogin = (learnerId: string) => {
-  if (learnerId === mockLearner.id) {
-    return mockLearner
-  }
-  return null
+  // This is a mock function; in production, integrate with real auth
+  return { id: learnerId, name: 'Mock Learner' }
 }

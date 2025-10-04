@@ -2,6 +2,7 @@ import type { RouterClient } from '@orpc/server'
 
 import { protectedProcedure, publicProcedure } from '../lib/orpc'
 import { todoRouter } from './todo'
+import { certificateRouter } from './certificate'
 
 export const appRouter = {
   healthCheck: publicProcedure.handler(() => {
@@ -14,6 +15,7 @@ export const appRouter = {
     }
   }),
   todo: todoRouter,
+  certificate: certificateRouter,
 }
 export type AppRouter = typeof appRouter
 export type AppRouterClient = RouterClient<typeof appRouter>
